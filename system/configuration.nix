@@ -10,6 +10,12 @@
       ./hardware-configuration.nix
     ];
 
+  # Make ready for Nix Flakes:
+  nix.package = pkgs.nixFlakes;
+  nix.extraOptions = ''
+    experimental-features = nix-command flakes
+  '';
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -69,11 +75,48 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  # environment.systemPackages = with pkgs; [
-  #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #   wget
-  #   firefox
-  # ];
+  nixpkgs.config.allowUnfree = true;
+
+  environment.systemPackages = with pkgs; [
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+      # wget
+      # firefox
+      # apacheHttpd
+      vlc
+      # v4l2
+      # repa-v4l2
+      # haskellPackages.v4l2 ..... broken!
+      # haskellPackages.repa-v4l2
+      # megapixels
+      # python39
+      # python39Packages.pandas
+      # python39Packages.matplotlib
+      # python39Packages.numpy
+      # python39Packages.colorama
+      # python39Packages.colour
+      # python39Packages.pip
+      # gmplot
+      # python39Packages.cartopy
+      # steamPackages.steam
+      # steamPackages.steam-runtime
+      wget
+
+      
+      (let 
+        my-python-packages = python-packages: with python-packages; [ 
+          pandas
+          matplotlib
+          numpy
+          colorama
+          multiprocess
+          cartopy
+          # other python packages you want
+        ];
+        python-with-my-packages = python3.withPackages my-python-packages;
+      in
+      python-with-my-packages)
+      
+  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
